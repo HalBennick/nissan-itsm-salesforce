@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nissan North America × Salesforce — Replacing ServiceNow with Salesforce IT Service</title>
+<meta name="description" content="A proof-of-value point of view: replacing NNA's ServiceNow footprint with Salesforce IT Service — simpler licensing, a right-sized CMDB, and AI-driven ticket deflection.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --nissan-red:#c3002f;
+    --nissan-red-dk:#9b0025;
+    --sf-blue:#00a1e0;
+    --sf-navy:#032d60;
+    --sf-navy-2:#05346b;
+    --ink:#0b1524;
+    --slate:#4a5566;
+    --muted:#7a8698;
+    --paper:#ffffff;
+    --mist:#f5f7fa;
+    --mist-2:#eef2f7;
+    --line:#e2e8f0;
+    --line-2:#d5dde8;
+    --good:#0b8a4b;
+    --good-bg:#e7f6ee;
+    --warn:#b26a00;
+    --warn-bg:#fdf1dd;
+    --plan:#5b6675;
+    --plan-bg:#eef1f5;
+    --radius:16px;
+    --radius-sm:10px;
+    --shadow-sm:0 1px 2px rgba(11,21,36,.06),0 4px 14px rgba(11,21,36,.05);
+    --shadow-md:0 10px 30px rgba(11,21,36,.10),0 2px 8px rgba(11,21,36,.06);
+    --shadow-lg:0 24px 60px rgba(3,45,96,.18);
+    --maxw:1080px;
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+  body{
+    margin:0;font-family:var(--font);color:var(--ink);background:var(--paper);
+    line-height:1.65;font-size:17px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  h1,h2,h3{line-height:1.15;letter-spacing:-.02em;margin:0}
+  p{margin:0 0 1em}
+  strong{font-weight:700}
+
+  /* ---------- Co-brand logo lockup ---------- */
+  .lockup{display:inline-flex;align-items:center;gap:14px}
+  .brand{display:inline-flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
+  .brand .nissan-badge{width:34px;height:34px;flex:none}
+  .brand .sf-cloud{width:40px;height:26px;flex:none}
+  .brand-name{font-size:16px;line-height:1}
+  .cross{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+    font-size:13px;font-weight:700;color:var(--muted);border:1.5px solid var(--line-2);background:#fff;flex:none}
+  .on-dark .brand-name{color:#fff}
+  .on-dark .cross{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.06)}
+  .on-dark .nissan-badge circle{stroke:#fff}
+  .on-dark .nissan-badge rect{fill:#fff}
+  .on-dark .nissan-badge text{fill:var(--sf-navy)}
+
+  /* ---------- Sticky nav ---------- */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(160%) blur(12px);-webkit-backdrop-filter:saturate(160%) blur(12px);
+    border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .nav-links{display:flex;gap:4px;align-items:center}
+  .nav-links a{font-size:14px;font-weight:600;color:var(--slate);text-decoration:none;
+    padding:9px 13px;border-radius:9px;transition:.18s;white-space:nowrap}
+  .nav-links a:hover{color:var(--ink);background:var(--mist-2)}
+  .nav-links a.active{color:var(--nissan-red);background:#fdeef1}
+  .nav-toggle{display:none}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;overflow:hidden;color:#fff;isolation:isolate;
+    background:linear-gradient(118deg,#021a3d 0%,var(--sf-navy) 46%,#5c0a22 82%,var(--nissan-red-dk) 100%);}
+  .hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;
+    background:
+      radial-gradient(700px 420px at 82% -8%,rgba(0,161,224,.42),transparent 60%),
+      radial-gradient(620px 420px at 8% 118%,rgba(195,0,47,.5),transparent 62%);}
+  .hero::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.35;
+    background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);
+    background-size:52px 52px;mask-image:radial-gradient(90% 80% at 50% 30%,#000,transparent 78%);
+    -webkit-mask-image:radial-gradient(90% 80% at 50% 30%,#000,transparent 78%);}
+  .hero-inner{padding:78px 0 96px}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:#bfe4f7;margin-bottom:22px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--sf-blue);box-shadow:0 0 0 4px rgba(0,161,224,.25)}
+  .hero h1{font-size:clamp(34px,5.4vw,60px);font-weight:900;max-width:16ch;margin-bottom:22px}
+  .hero h1 .accent{background:linear-gradient(90deg,#7fd6f5,#00a1e0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .lede{font-size:clamp(17px,2.1vw,21px);max-width:60ch;color:rgba(255,255,255,.9);margin-bottom:30px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;
+    padding:8px 15px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+    color:#fff;backdrop-filter:blur(4px)}
+  .chip svg{width:15px;height:15px;flex:none;opacity:.9}
+  .hero-lockup{margin-bottom:34px}
+
+  /* ---------- Stat band ---------- */
+  .statband{background:var(--sf-navy);color:#fff;border-top:1px solid rgba(255,255,255,.08)}
+  .statband .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .stat{padding:34px 22px;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+  .stat:last-child{border-right:none}
+  .stat .num{font-size:clamp(30px,4vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(90deg,#fff,#bfe4f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .lbl{font-size:13.5px;color:rgba(255,255,255,.72);margin-top:10px;font-weight:500;line-height:1.4}
+
+  /* ---------- Sections ---------- */
+  section.block{padding:76px 0}
+  section.block.tint{background:var(--mist)}
+  .sec-head{max-width:64ch;margin-bottom:34px}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:800;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--nissan-red);margin-bottom:14px}
+  .kicker .bar{width:26px;height:2px;background:var(--nissan-red);border-radius:2px}
+  .sec-head h2{font-size:clamp(27px,3.6vw,38px);font-weight:800;margin-bottom:14px}
+  .sec-head p{color:var(--slate);font-size:18px;margin:0}
+  .prose{max-width:70ch}
+  .prose p{color:var(--slate)}
+  .prose .ink{color:var(--ink)}
+
+  /* ---------- Callout ---------- */
+  .callout{position:relative;border-radius:var(--radius);padding:28px 30px 28px 34px;margin:8px 0 4px;
+    background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid var(--line);box-shadow:var(--shadow-md);
+    overflow:hidden}
+  .callout::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+    background:linear-gradient(180deg,var(--nissan-red),var(--sf-blue))}
+  .callout .tag{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--nissan-red);margin-bottom:10px}
+  .callout p{margin:0;color:var(--ink);font-size:18px}
+  .callout p strong{color:var(--nissan-red)}
+
+  /* ---------- Cards & grids ---------- */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px;box-shadow:var(--shadow-sm)}
+  .note{background:var(--mist);border:1px solid var(--line);border-left:4px solid var(--sf-blue);
+    border-radius:var(--radius-sm);padding:16px 20px;color:var(--slate);font-size:15.5px;margin-top:18px}
+  .note strong{color:var(--ink)}
+
+  /* ---------- Spec grid (entitlement) ---------- */
+  .specs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:6px 0 4px}
+  .spec{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px 18px;box-shadow:var(--shadow-sm)}
+  .spec .v{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--sf-navy)}
+  .spec .k{font-size:13px;color:var(--slate);margin-top:4px;line-height:1.35}
+
+  /* ---------- Tables ---------- */
+  .table-shell{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md);background:#fff}
+  .table-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:15.5px;min-width:560px}
+  thead th{background:linear-gradient(180deg,var(--sf-navy),var(--sf-navy-2));color:#fff;text-align:left;
+    font-weight:700;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:15px 20px;white-space:nowrap}
+  tbody td{padding:16px 20px;border-top:1px solid var(--line);color:var(--slate);vertical-align:top}
+  tbody tr:nth-child(even){background:#fafbfd}
+  tbody tr:hover{background:#f0f6fc}
+  tbody td:first-child{color:var(--ink);font-weight:700;width:1%;white-space:nowrap}
+  .table-mod tbody td:first-child{white-space:normal;min-width:210px}
+  td .sub{display:block;color:var(--muted);font-weight:400;font-size:13.5px;margin-top:3px}
+
+  /* count + percent bar cells */
+  td.count{font-variant-numeric:tabular-nums;font-weight:800;color:var(--ink);white-space:nowrap}
+  .pctcell{min-width:150px}
+  .pct{display:flex;align-items:center;gap:10px}
+  .pct .track{flex:1;height:9px;border-radius:6px;background:var(--mist-2);overflow:hidden;min-width:70px}
+  .pct .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--sf-blue),var(--sf-navy))}
+  .pct .fill.red{background:linear-gradient(90deg,#e0798f,var(--nissan-red))}
+  .pct .val{font-variant-numeric:tabular-nums;font-weight:800;color:var(--ink);width:44px;text-align:right}
+
+  /* status pills */
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .pill svg{width:13px;height:13px;flex:none}
+  .pill.ok{color:var(--good);background:var(--good-bg)}
+  .pill.beta{color:var(--warn);background:var(--warn-bg)}
+  .pill.plan{color:var(--plan);background:var(--plan-bg)}
+  .status-note{display:block;color:var(--muted);font-size:13.5px;margin-top:6px;font-weight:400}
+
+  /* ---------- CMDB contrast ---------- */
+  .contrast{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;margin:8px 0 26px}
+  .contrast .big{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;text-align:center;box-shadow:var(--shadow-sm)}
+  .contrast .big .n{font-size:clamp(34px,5vw,52px);font-weight:900;letter-spacing:-.03em;line-height:1}
+  .contrast .big .c{font-size:14px;color:var(--slate);margin-top:8px;font-weight:600}
+  .contrast .big.total .n{color:var(--nissan-red)}
+  .contrast .big.managed .n{color:var(--sf-navy)}
+  .contrast .vs{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:var(--ink);color:#fff;font-weight:800;font-size:13px;flex:none}
+
+  /* ---------- Steps / path forward ---------- */
+  .steps{display:grid;gap:16px;counter-reset:step}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow-sm);transition:.2s}
+  .step:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+  .step .idx{counter-increment:step;width:44px;height:44px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,var(--nissan-red),var(--nissan-red-dk));color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+  .step .idx::before{content:counter(step)}
+  .step h3{font-size:18px;margin-bottom:6px}
+  .step p{margin:0;color:var(--slate);font-size:15.5px}
+  .two-step .step .idx{background:linear-gradient(135deg,var(--sf-blue),var(--sf-navy))}
+
+  /* differentiator card */
+  .diff{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
+    background:linear-gradient(120deg,#031f45,var(--sf-navy));color:#fff;border-radius:var(--radius);
+    padding:30px 32px;box-shadow:var(--shadow-lg);overflow:hidden;position:relative}
+  .diff::after{content:"";position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,161,224,.4),transparent 70%)}
+  .diff .arc{position:relative;z-index:1;display:flex;align-items:baseline;gap:6px;font-weight:900;letter-spacing:-.03em;white-space:nowrap}
+  .diff .arc .from{font-size:34px;color:#9fd9f2}
+  .diff .arc .to{font-size:52px;background:linear-gradient(90deg,#fff,#7fd6f5);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .diff .arc .ar{font-size:26px;opacity:.7;margin:0 4px}
+  .diff .txt{position:relative;z-index:1}
+  .diff .txt h3{font-size:19px;margin-bottom:8px}
+  .diff .txt p{margin:0;color:rgba(255,255,255,.86);font-size:15.5px}
+
+  /* financial hero */
+  .fin{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:34px 36px;box-shadow:var(--shadow-md)}
+  .fin .figure{text-align:center;padding-right:34px;border-right:1px solid var(--line)}
+  .fin .figure .n{font-size:clamp(46px,7vw,72px);font-weight:900;letter-spacing:-.04em;line-height:.95;
+    background:linear-gradient(120deg,var(--nissan-red),var(--sf-navy));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .fin .figure .c{font-size:14px;color:var(--slate);margin-top:8px;font-weight:600;max-width:22ch;margin-left:auto;margin-right:auto}
+  .fin .body p{margin:0;color:var(--slate)}
+  .fin .body p .ink{color:var(--ink);font-weight:600}
+
+  /* closing banner */
+  .closing{background:linear-gradient(118deg,var(--sf-navy),#05346b 55%,#5c0a22);color:#fff;border-radius:var(--radius);
+    padding:40px 40px;text-align:center;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+  .closing::before{content:"";position:absolute;inset:0;opacity:.4;
+    background:radial-gradient(500px 300px at 85% 120%,rgba(195,0,47,.5),transparent 60%),radial-gradient(500px 300px at 10% -20%,rgba(0,161,224,.4),transparent 60%)}
+  .closing p{position:relative;font-size:clamp(19px,2.6vw,25px);font-weight:700;margin:0 auto;max-width:52ch;letter-spacing:-.01em}
+
+  /* ---------- Footer ---------- */
+  footer.site{background:var(--ink);color:rgba(255,255,255,.72);padding:44px 0 40px;border-top:4px solid var(--nissan-red)}
+  .foot-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .foot-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:20px;font-size:13.5px}
+  .conf{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:#ffb3c1;background:rgba(195,0,47,.16);border:1px solid rgba(195,0,47,.4);padding:7px 14px;border-radius:999px}
+  .foot-links{display:flex;gap:8px;align-items:center;color:rgba(255,255,255,.5)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    .nav-links{position:fixed;inset:70px 0 auto 0;background:#fff;flex-direction:column;align-items:stretch;
+      padding:12px 18px 18px;gap:2px;border-bottom:1px solid var(--line);box-shadow:var(--shadow-md);
+      transform:translateY(-140%);transition:transform .28s ease;max-height:calc(100vh - 70px);overflow:auto}
+    .nav-links.open{transform:none}
+    .nav-links a{padding:13px 12px;font-size:15px}
+    .nav-toggle{display:inline-flex;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px}
+    .nav-toggle span{width:24px;height:2px;background:var(--ink);border-radius:2px;transition:.25s}
+    .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .nav-toggle.open span:nth-child(2){opacity:0}
+    .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .statband .grid{grid-template-columns:1fr 1fr}
+    .stat{border-right:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1)}
+    .stat:nth-child(2n){border-right:none}
+    .specs{grid-template-columns:1fr 1fr}
+    .grid-2{grid-template-columns:1fr}
+    .contrast{grid-template-columns:1fr;gap:14px}
+    .contrast .vs{margin:0 auto;transform:rotate(90deg)}
+    .diff,.fin{grid-template-columns:1fr;gap:22px}
+    .fin .figure{border-right:none;border-bottom:1px solid var(--line);padding:0 0 24px}
+    .diff .arc{justify-content:center}
+  }
+  @media (max-width:480px){
+    body{font-size:16px}
+    .statband .grid{grid-template-columns:1fr}
+    .stat:nth-child(2n){border-right:none}
+    .specs{grid-template-columns:1fr}
+    .hero-inner{padding:60px 0 72px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="lockup" aria-label="Nissan North America and Salesforce" style="text-decoration:none">
+      <span class="brand">
+        <svg class="nissan-badge" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#000" stroke-width="4.5"/>
+          <rect x="6" y="41" width="88" height="18" fill="#000"/>
+          <text x="50" y="54.5" fill="#fff" font-family="Inter,sans-serif" font-size="13.5" font-weight="800" text-anchor="middle" letter-spacing="1.2">NISSAN</text>
+        </svg>
+        <span class="brand-name">Nissan</span>
+      </span>
+      <span class="cross">×</span>
+      <span class="brand">
+        <svg class="sf-cloud" viewBox="0 0 120 80" aria-hidden="true">
+          <g fill="#00a1e0">
+            <circle cx="45" cy="42" r="23"/><circle cx="73" cy="35" r="19"/>
+            <circle cx="90" cy="50" r="16"/><circle cx="30" cy="54" r="16"/>
+            <rect x="27" y="45" width="66" height="24" rx="12"/>
+          </g>
+        </svg>
+        <span class="brand-name">Salesforce</span>
+      </span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="nav-links">
+      <a href="#summary">Summary</a>
+      <a href="#current">Current State</a>
+      <a href="#cmdb">CMDB Mismatch</a>
+      <a href="#replace">What We Replace</a>
+      <a href="#financial">Opportunity</a>
+      <a href="#forward">Path Forward</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div class="hero-lockup lockup on-dark">
+      <span class="brand">
+        <svg class="nissan-badge" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-width="4.5"/>
+          <rect x="6" y="41" width="88" height="18" fill="#fff"/>
+          <text x="50" y="54.5" fill="#032d60" font-family="Inter,sans-serif" font-size="13.5" font-weight="800" text-anchor="middle" letter-spacing="1.2">NISSAN</text>
+        </svg>
+        <span class="brand-name">Nissan North America</span>
+      </span>
+      <span class="cross">×</span>
+      <span class="brand">
+        <svg class="sf-cloud" viewBox="0 0 120 80" aria-hidden="true">
+          <g fill="#00a1e0">
+            <circle cx="45" cy="42" r="23"/><circle cx="73" cy="35" r="19"/>
+            <circle cx="90" cy="50" r="16"/><circle cx="30" cy="54" r="16"/>
+            <rect x="27" y="45" width="66" height="24" rx="12"/>
+          </g>
+        </svg>
+        <span class="brand-name">Salesforce</span>
+      </span>
+    </div>
+    <div class="eyebrow"><span class="dot"></span>ITSM Point of View · Proof of Value</div>
+    <h1>Replacing ServiceNow with <span class="accent">Salesforce IT Service</span></h1>
+    <p class="lede">We reviewed NNA's current ServiceNow footprint in detail — licensing, configuration items, and module usage. Most of it can move to Salesforce IT Service at a fraction of the cost, with simpler licensing and AI-driven ticket deflection built in.</p>
+    <div class="chips">
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>5-year ServiceNow contract</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Expires March 2027</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-3-6.2M20 4v5h-5"/></svg>Renegotiation underway now</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAT BAND ============ -->
+<section class="statband">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat"><div class="num">80–90%</div><div class="lbl">of current ServiceNow licensing could be eliminated</div></div>
+      <div class="stat"><div class="num">436,198</div><div class="lbl">total CIs in NNA's CMDB</div></div>
+      <div class="stat"><div class="num">3,820</div><div class="lbl">actually managed or licensed</div></div>
+      <div class="stat"><div class="num">up to 80%</div><div class="lbl">ticket deflection with Agentforce</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXECUTIVE SUMMARY ============ -->
+<section class="block" id="summary">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>Executive Summary</div>
+      <h2>The renewal window is the opening</h2>
+    </div>
+    <div class="prose">
+      <p>Nissan's ServiceNow agreement is a 5-year contract that expires in <strong class="ink">March 2027</strong>, and renegotiation is underway now. We reviewed NNA's current ServiceNow footprint in detail: licensing, configuration items, and module usage. Most of it can move to Salesforce IT Service at a fraction of the cost, with simpler licensing and AI-driven ticket deflection built in.</p>
+    </div>
+    <div class="callout" style="margin-top:22px">
+      <div class="tag"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/><path d="M9 21h6M10 17v4M14 17v4"/></svg>Bottom line</div>
+      <p>At industry-standard pricing, we estimate <strong>80–90% of NNA's current ServiceNow licensing could be eliminated</strong> by moving to Salesforce IT Service. Hold off on any long-term ServiceNow renewal. Take a one-year bridge renewal at most, and run a parallel proof of value in the meantime.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CURRENT STATE ============ -->
+<section class="block tint" id="current">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>Current State</div>
+      <h2>NNA's ServiceNow footprint</h2>
+      <p>NNA's Americas IT ServiceNow deployment covers <strong>6 modules</strong> and <strong>22 applications</strong> on a single platform.</p>
+    </div>
+
+    <div class="table-shell table-mod">
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Module</th><th>Key Applications</th></tr></thead>
+          <tbody>
+            <tr><td>ITSM<span class="sub">IT Service Management Professional</span></td><td>Incident, Problem, Change, Major Incident, Service Level, Asset, Service Catalog, Service Request Management; On-call Mgmt; Virtual Agent; Platform Analytics / IT Ops Dashboards</td></tr>
+            <tr><td>CMDB</td><td>Service Graph, Discovery, Service Mapping, AWS Service Mapping</td></tr>
+            <tr><td>SPM / ST&amp;O<span class="sub">Strategic Portfolio Management</span></td><td>Demand Management, Project Portfolio Management, Project Workspace, Agile / SCRUM, Service Transition &amp; Ops Readiness</td></tr>
+            <tr><td>APM<span class="sub">Application Portfolio Management</span></td><td>Application Portfolio, Business Process Mapping, Technology Portfolio</td></tr>
+            <tr><td>SecOps<span class="sub">Security Operations Standard</span></td><td>Vulnerability Response, SIEM Integration</td></tr>
+            <tr><td>GRC<span class="sub">Legacy ITSA &amp; Integrated Risk Mgmt</span></td><td>JSOX Audit Management, Policy &amp; Compliance, Governance Risk &amp; Compliance, Risk Management</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin:34px 0 16px">Current entitlement</h3>
+    <div class="specs">
+      <div class="spec"><div class="v">1,500</div><div class="k">ITSM Fulfiller User licenses</div></div>
+      <div class="spec"><div class="v">3,820</div><div class="k">ITOM AIOps Professional units</div></div>
+      <div class="spec"><div class="v">40,000</div><div class="k">Security Operations (VR) device licenses</div></div>
+      <div class="spec"><div class="v">5,246</div><div class="k">Business Stakeholder User licenses (combined)</div></div>
+      <div class="spec"><div class="v">350</div><div class="k">APM User licenses</div></div>
+      <div class="spec"><div class="v">271</div><div class="k">SPM User licenses</div></div>
+      <div class="spec"><div class="v">288</div><div class="k">GRC Operator licenses</div></div>
+      <div class="spec" style="background:var(--sf-navy);border-color:var(--sf-navy)"><div class="v" style="color:#fff">14</div><div class="k" style="color:rgba(255,255,255,.8)">distinct product SKUs, several metered</div></div>
+    </div>
+    <div class="note">These sit across <strong>14 distinct product SKUs</strong>, several with their own consumption meters: data fabric credits, transaction packs, non-production instances, and custom tables.</div>
+    <div class="note" style="border-left-color:var(--nissan-red)">On top of that sits <strong>12 years of customization</strong>: ~90% of ServiceNow features have been customized to some degree, with Change Management the most heavily modified. Integrations run to AWS, Lumen, ConvergeOne, HR systems, Teams, and file shares.</div>
+  </div>
+</section>
+
+<!-- ============ CMDB MISMATCH ============ -->
+<section class="block" id="cmdb">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>CMDB Licensing Mismatch</div>
+      <h2>What's licensed and what's actually there don't line up</h2>
+      <p>We analyzed NNA's CMDB, the system of record ServiceNow uses to price and license the platform.</p>
+    </div>
+
+    <div class="contrast">
+      <div class="big total"><div class="n">436,198</div><div class="c">total CIs in the CMDB</div></div>
+      <div class="vs">vs</div>
+      <div class="big managed"><div class="n">3,820</div><div class="c">managed or licensed under ITOM AIOps Professional</div></div>
+    </div>
+
+    <div class="table-shell">
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Segment</th><th>Count</th><th>% of Total</th><th>What it actually is</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Transient &amp; process data</td>
+              <td class="count">388,602</td>
+              <td class="pctcell"><div class="pct"><span class="track"><span class="fill red" style="width:89%"></span></span><span class="val">89%</span></div></td>
+              <td>Ephemeral cloud VMs (81%, autoscaled — not real managed assets) + batch jobs (8%, process / child records, not infrastructure)</td>
+            </tr>
+            <tr>
+              <td>End-user devices</td>
+              <td class="count">30,274</td>
+              <td class="pctcell"><div class="pct"><span class="track"><span class="fill" style="width:7%"></span></span><span class="val">7%</span></div></td>
+              <td>Hardware asset management objects</td>
+            </tr>
+            <tr>
+              <td>Real managed infrastructure</td>
+              <td class="count">~17,322</td>
+              <td class="pctcell"><div class="pct"><span class="track"><span class="fill" style="width:4%"></span></span><span class="val">~4%</span></div></td>
+              <td>Named servers, network gear, applications, business services</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="prose" style="max-width:none;margin-top:26px">
+      <p>That creates real exposure. Current ITOM licensing (3,820 units) looks short by roughly <strong class="ink">3×–6×</strong> against the real managed estate (~17K CIs, or ~47K including endpoints). A gap that size triggers a large, unplanned true-up at renewal, which is exactly why we'd renegotiate scope and pricing model rather than renew as-is.</p>
+    </div>
+
+    <h3 style="font-size:19px;font-weight:800;margin:30px 0 4px">A two-step fix — and it holds regardless of which platform NNA ends up running</h3>
+    <div class="steps two-step" style="margin-top:18px">
+      <div class="step"><div class="idx"></div><div><h3>Rationalize the data</h3><p>Retire the 89% of ephemeral cloud VM and batch noise so the CMDB reflects what NNA actually manages.</p></div></div>
+      <div class="step"><div class="idx"></div><div><h3>Simplify the pricing model</h3><p>Move to a flat per-CI model, with no per-class subscription meters and no coupling to autoscaled cloud VM counts, so the bill stops moving every time the infrastructure autoscales.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT WE REPLACE ============ -->
+<section class="block tint" id="replace">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>Coverage Today</div>
+      <h2>What Salesforce IT Service replaces today</h2>
+    </div>
+
+    <div class="table-shell">
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ServiceNow Module</th><th>Salesforce IT Service Status</th></tr></thead>
+          <tbody>
+            <tr><td style="white-space:normal;min-width:220px">ITSM<span class="sub">Incident, Problem, Change, Major Incident, SLA, Asset, Catalog, Request Mgmt</span></td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span><span class="status-note">Core ITSM</span></td></tr>
+            <tr><td>CMDB / Service Graph</td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span><span class="status-note">CMDB with service graph</span></td></tr>
+            <tr><td>Hardware Asset Management</td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span></td></tr>
+            <tr><td>IT Compliance</td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span></td></tr>
+            <tr><td style="white-space:normal;min-width:220px">AI-driven ticket deflection<span class="sub">Virtual Agent equivalent</span></td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span><span class="status-note">55 out-of-box Agentforce IT agents</span></td></tr>
+            <tr><td>Software Asset Management</td><td><span class="pill beta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>In beta</span><span class="status-note">GA in ~1–2 months</span></td></tr>
+            <tr><td>APM<span class="sub">Application Portfolio Management</span></td><td><span class="pill plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>Planned</span><span class="status-note">No date available</span></td></tr>
+            <tr><td>SCM</td><td><span class="pill plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>Planned</span><span class="status-note">No date available</span></td></tr>
+            <tr><td>SecOps<span class="sub">Vulnerability Response, SIEM</span></td><td><span class="pill plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>Planned</span><span class="status-note">No date available</span></td></tr>
+            <tr><td>GRC Legacy<span class="sub">JSOX, Policy &amp; Compliance, Risk Mgmt</span></td><td><span class="pill ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>Available now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="prose" style="max-width:none;margin-top:26px">
+      <p>The core that carries most of NNA's day-to-day load is covered now: ITSM, CMDB, Risk Management, and asset management. APM and SCM are near-term roadmap items, and SecOps and legacy GRC stay on a separate track.</p>
+    </div>
+
+    <div class="diff" style="margin-top:26px">
+      <div class="arc"><span class="from">45%</span><span class="ar">→</span><span class="to">80%</span></div>
+      <div class="txt">
+        <h3>The differentiator here is AI ticket deflection</h3>
+        <p>A comparable-sized customer saw roughly 45% ticket deflection after adopting Agentforce for IT agents — mostly password resets, hardware requests, and similar high-volume, low-complexity tickets. That number climbed month over month as the knowledge base matured, and more mature customers are seeing up to 80% deflection.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINANCIAL OPPORTUNITY ============ -->
+<section class="block" id="financial">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>The Financial Opportunity</div>
+      <h2>Right-size the estate, consolidate the SKUs</h2>
+    </div>
+    <div class="fin">
+      <div class="figure">
+        <div class="n">80–90%</div>
+        <div class="c">of current ServiceNow licensing spend could be eliminated</div>
+      </div>
+      <div class="body">
+        <p>Apply industry-standard per-unit pricing to NNA's actual entitlement footprint, set against the Salesforce IT Service equivalent, and we estimate <span class="ink">80–90% of current ServiceNow licensing spend could be eliminated</span>. Two things drive that: consolidating <span class="ink">14 separate SKUs</span> and metered add-ons into a simpler licensing model, and rightsizing licensing to NNA's real managed estate (~17K–47K CIs) instead of the inflated 436K CI count.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PATH FORWARD ============ -->
+<section class="block tint" id="forward">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <div class="kicker"><span class="bar"></span>Recommended Path Forward</div>
+      <h2>Protect the leverage; prove it out</h2>
+      <p>Given the renewal timing, we'd steer NNA away from locking into another long-term agreement before this gets a real test.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="idx"></div><div><h3>Keep any renewal to one year, not a multi-year term</h3><p>A long renewal now gives away NNA's leverage and forecloses this option before it's proven out.</p></div></div>
+      <div class="step"><div class="idx"></div><div><h3>Run a parallel proof of value on the core ITSM + CMDB workload</h3><p>We'll evaluate the past 12–18 months of ServiceNow ticket data, simulate a live production environment, and produce a report on ticket deflection and related savings. Salesforce will also run discovery to determine the licensing cost savings, which we expect to be substantial.</p></div></div>
+      <div class="step"><div class="idx"></div><div><h3>Use the CMDB rationalization exercise as a forcing function — whatever platform NNA picks</h3><p>Cleaning up the 89% of noise CIs reduces the license true-up exposure either way and makes any go-forward pricing, ServiceNow or Salesforce, more defensible.</p></div></div>
+      <div class="step"><div class="idx"></div><div><h3>Treat SecOps and legacy GRC as a separate, longer-horizon conversation</h3><p>Keep them out of the critical path rather than letting them block moving the ITSM / CMDB core now.</p></div></div>
+    </div>
+
+    <div class="closing" style="margin-top:34px">
+      <p>Either way, this gives NNA a credible, evidence-based alternative to a multi-year ServiceNow renewal — and a stronger negotiating position.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="lockup on-dark">
+        <span class="brand">
+          <svg class="nissan-badge" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-width="4.5"/>
+            <rect x="6" y="41" width="88" height="18" fill="#fff"/>
+            <text x="50" y="54.5" fill="#0b1524" font-family="Inter,sans-serif" font-size="13.5" font-weight="800" text-anchor="middle" letter-spacing="1.2">NISSAN</text>
+          </svg>
+          <span class="brand-name">Nissan North America</span>
+        </span>
+        <span class="cross">×</span>
+        <span class="brand">
+          <svg class="sf-cloud" viewBox="0 0 120 80" aria-hidden="true">
+            <g fill="#00a1e0"><circle cx="45" cy="42" r="23"/><circle cx="73" cy="35" r="19"/><circle cx="90" cy="50" r="16"/><circle cx="30" cy="54" r="16"/><rect x="27" y="45" width="66" height="24" rx="12"/></g>
+          </svg>
+          <span class="brand-name">Salesforce</span>
+        </span>
+      </div>
+      <span class="conf"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Confidential — prepared for Nissan North America</span>
+    </div>
+    <div class="foot-bottom">
+      <span>Salesforce IT Service · Agentforce · ITSM Point of View</span>
+      <span class="foot-links">Updated September 24, 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  var toggle=document.querySelector('.nav-toggle'),links=document.querySelector('.nav-links');
+  toggle&&toggle.addEventListener('click',function(){
+    var open=links.classList.toggle('open');toggle.classList.toggle('open',open);
+    toggle.setAttribute('aria-expanded',open);
+  });
+  links&&links.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){
+    links.classList.remove('open');toggle.classList.remove('open');toggle.setAttribute('aria-expanded',false);
+  });});
+
+  // Scroll reveal
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});}
+
+  // Active nav highlight
+  var secs=[].slice.call(document.querySelectorAll('section.block[id]'));
+  var navmap={};document.querySelectorAll('.nav-links a').forEach(function(a){navmap[a.getAttribute('href').slice(1)]=a;});
+  if('IntersectionObserver' in window){
+    var so=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){Object.values(navmap).forEach(function(a){a.classList.remove('active');});
+        var m=navmap[e.target.id];m&&m.classList.add('active');}
+    });},{rootMargin:'-45% 0px -50% 0px'});
+    secs.forEach(function(s){so.observe(s);});
+  }
+</script>
+</body>
+</html>
